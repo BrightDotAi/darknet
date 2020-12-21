@@ -1,3 +1,99 @@
+# How to use AlexeyAB darknet on Ubuntu 18.04
+1. git clone https://github.com/AlexeyAB/darknet
+2. install libssl-dev and cmake and opencv:
+
+    sudo apt-get update
+    sudo apt-get install libssl-dev libopencv-dev=3.2.0+dfsg-4ubuntu0.1
+    
+    #The default camke3.x in Ubuntu18.04 is too old, need to install a higher version by building from source code: 
+    wget https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3.tar.gz
+    tar xf cmake-3.17.3.tar.gz
+    cd cmake-3.17.3
+    ./bootstrap
+    make
+    make install
+
+3. install cuda and cudnn, if your PC use a RTX30-series GPU, such as RTX3090, you must install the latest cuda11.1.1 (cuda11.1.0 is not OK!)+cudnn8. 
+Or just pull a docker image which has cuda11.1.1+cudnn8 installed and execute step1 and step2 in it, and install other tools which are necessary, e.g.:  
+    docker pull nvidia/cuda:11.1-cudnn8-devel-ubuntu18.04
+    docker run -it -d --privileged --ipc=host --network=host --name ABdarknet_cuda-11.1-cudnn8-devel-ubuntu18.04 --gpus all -v /data/workspace:/workspace nvidia/cuda:11.1-cudnn8-devel-ubuntu18.04
+    docker exec -it <container id> bash
+    cd /workspace
+    git clone https://github.com/AlexeyAB/darknet
+    
+    sudo apt-get update
+    sudo apt-get install libssl-dev libopencv-dev=3.2.0+dfsg-4ubuntu0.1 vim unzip git
+    
+    wget https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3.tar.gz
+    tar xf cmake-3.17.3.tar.gz
+    cd cmake-3.17.3
+    ./bootstrap
+    make
+    make install
+    
+    cd ..
+    wget http://www.python.org/ftp/python/3.6.9/Python-3.6.9.tgz
+    tar xzf Python-3.6.9.tgz
+    cd Python-3.6.9
+    ./configure --with-ssl --enable-optimizations
+    make
+    make install
+    cd /usr/local/bin
+    ln -s python3 python
+    ln -s pip3 pip
+    
+    pip install--upgrade pip
+    pip install numpy cython pycocotools torch==1.6 torchvision==0.7 onnx==1.6 opencv-python onnxruntime
+
+4. change Makefile as required, e.g. (if your PC/server has RTX30-series GPU, remember to add compute capability 86 as the following, for GPU's compute capability, you can query in https://developer.nvidia.com/cuda-gpus):
+    GPU=1
+    CUDNN=1
+    CUDNN_HALF=0
+    OPENCV=1
+
+    ARCH= -gencode arch=compute_35,code=sm_35 \
+      -gencode arch=compute_50,code=[sm_50,compute_50] \
+      -gencode arch=compute_52,code=[sm_52,compute_52] \
+      -gencode arch=compute_61,code=[sm_61,compute_61] \
+      -gencode arch=compute_70,code=[sm_70,compute_70] \
+      -gencode arch=compute_72,code=[sm_72,compute_72] \
+      -gencode arch=compute_75,code=[sm_75,compute_75] \
+      -gencode arch=compute_86,code=[sm_86,compute_86]
+5. execute make to build out the darknet binary file.
+6. change  cfg/coco.data as required, e.g.:
+    classes= 11
+    train  = data/laundry-train.txt
+    valid =  data/laundry-test.txt
+    names = data/laundry.names
+    backup = backup
+    eval=coco 
+
+7. change cfg/yolov4-tiny.cfg as required, e.g. our laundry dataset has 11 classes, change all 'classes' values to 11 in section  \[yolo\] and change all 'filters' values to 48:  
+    \[convolutional\]
+    ...
+    pad=1
+    #filters=255
+    filters=48
+    activation=linear
+    \[yolo\]
+    ...
+    #classes=80
+    classes=11
+ 
+ 8. create our down laundry coco2017-formatted dataset and put it under data/coco, and write a sript file gen_val_file_list.py to generate out laundry-train.txt and laundry-test.txt and write a script file coco2yolo.py to generate yolo-format label files for each image, and copy the \*.txt files to data/coco/train2017/ and data/coco/val2017/.
+ I have written out gen_val_file_list.py and coco2yolo.py and committed them here.
+ 
+ 9. do training with our own laundry dataset:
+     nohup ./darknet detector train cfg/coco.data cfg/yolov4-tiny.cfg yolov4-tiny.conv.29 -gpus 0 -dont_show &
+ 
+ 10.do validation:
+     ./darknet detector valid cfg/coco.data cfg/yolov4-tiny.cfg backup/yolov4-tiny_last.weights -out yolov4-tiny -gpus 0
+ 
+ the result file yolov4-tiny.json will be generated out under results/, but because the image file names of our laundry dataset are not digit-formatted, this result file cannot be used to parse and generate out mAP by 'python valcoco.py ./results/yolov4-tiny.json', to get mAP, please do it under https://github.com/BrightDotAi/pytorch-YOLOv4 following the steps listed out in its README.  
+ 
+
+# The original README:
+-----------------------------------------------------------------------------------------------------------------------------------------------
 # Yolo v4, v3 and v2 for Windows and Linux
 
 ## (neural networks for object detection)
