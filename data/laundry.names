@@ -1,0 +1,11 @@
+person
+wm_open
+wm_close_idle
+wm_close_work
+wm_close_unknown
+dr_open
+dr_close_idle
+dr_close_work
+dr_close_unknown
+op_input
+op_output

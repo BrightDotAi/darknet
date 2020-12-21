@@ -1,0 +1,6 @@
+classes= 11 
+train  = data/laundry_train.txt
+valid  = data/laundry_val.txt
+names = data/laundry.names
+backup = backup/
+eval = coco
