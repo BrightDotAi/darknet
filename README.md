@@ -80,8 +80,8 @@ Or just pull a docker image which has cuda11.1.1+cudnn8 installed and execute st
     #classes=80
     classes=11
  
- 8. create our down laundry coco2017-formatted dataset and put it under data/coco, and write a sript file gen_val_file_list.py to generate out laundry-train.txt and laundry-test.txt and write a script file coco2yolo.py to generate yolo-format label files for each image, and copy the \*.txt files to data/coco/train2017/ and data/coco/val2017/.
- I have written out gen_val_file_list.py and coco2yolo.py and committed them here.
+ 8. create our down laundry coco2017-formatted dataset and put it under data/coco, and write sript files gen_train_file_list.py and gen_val_file_list.py to generate out laundry-train.txt and laundry-test.txt and write a script file coco2yolo.py to generate yolo-format label files for each image, and **copy the \*.txt files to data/coco/train2017/ and data/coco/val2017/**. Each time when you have a new coco-format dataset, remember to do this step.
+ I have written out gen_train_file_list.py and gen_val_file_list.py and coco2yolo.py and committed them here.
  
  9. do training with our own laundry dataset:
      nohup ./darknet detector train cfg/coco.data cfg/yolov4-tiny.cfg yolov4-tiny.conv.29 -gpus 0 -dont_show &
@@ -90,7 +90,7 @@ Or just pull a docker image which has cuda11.1.1+cudnn8 installed and execute st
      ./darknet detector valid cfg/coco.data cfg/yolov4-tiny.cfg backup/yolov4-tiny_last.weights -out yolov4-tiny -gpus 0
  the result file yolov4-tiny.json will be generated out under results/, but because the image file names of our laundry dataset are not digit-formatted, this result file cannot be used to parse and generate out mAP by 'python valcoco.py ./results/yolov4-tiny.json', to get mAP, please do it under https://github.com/BrightDotAi/pytorch-YOLOv4 following the steps listed out in its README.  
  
-**Please note I have committed all the configure changes and scripts for landry dataset, you only need to git-clone the source code down and use them.**  
+**Please note I have committed all the configure changes and scripts for landry dataset, you only need to git-clone the source code down and use them, remember to execute gen_train_file_list.py and gen_val_file_list.py and coco2yolo.py to generate out file-list files and label files for your dataset when you use the dataset for the first time!**  
 
 
 # The original README:
