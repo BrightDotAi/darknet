@@ -90,7 +90,7 @@ Or just pull a docker image which has cuda11.1.1+cudnn8 installed and execute st
      ./darknet detector valid cfg/coco.data cfg/yolov4-tiny.cfg backup/yolov4-tiny_last.weights -out yolov4-tiny -gpus 0
  the result file yolov4-tiny.json will be generated out under results/, but because the image file names of our laundry dataset are not digit-formatted, this result file cannot be used to parse and generate out mAP by 'python valcoco.py ./results/yolov4-tiny.json', to get mAP, please do it under https://github.com/BrightDotAi/pytorch-YOLOv4 following the steps listed out in its README.  
  
-**Please note I have committed all the configure changes and scripts for landry dataset, you only need to git-clone the source code down and use them, remember to execute gen_train_file_list.py and gen_val_file_list.py and coco2yolo.py to generate out file-list files and label files for your dataset when you use the dataset for the first time!**  
+**Please note I have committed all the configure changes and scripts for our current laundry dataset, you only need to git-clone the source code down and use them, remember to execute gen_train_file_list.py and gen_val_file_list.py and coco2yolo.py to generate out file-list files and label files for your dataset when you use the dataset for the first time!**  
 
 
 # The original README:
